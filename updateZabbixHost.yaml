@@ -1,0 +1,37 @@
+---
+- hosts: localhost
+  # become: true
+  # become_method: sudo
+  # become_user: root
+  # remote_user: root
+  gather_facts: false
+  tasks:
+    - name: Create a new host or update an existing host's info
+      local_action:
+        module: community.zabbix.zabbix_host
+        server_url: http://172.18.0.1
+        login_user: Admin
+        login_password: zabbix
+        host_name: Zabbix server
+        description: Zabbix Server Host Example
+        host_groups:
+          - Zabbix servers
+        #   - Example group2
+        status: enabled
+        state: present
+        inventory_mode: manual
+        # inventory_zabbix:
+        #   tag: "{{ your_tag }}"
+        #   alias: "{{ your_alias }}"
+        #   notes: "Special Informations: {{ your_informations | default('None') }}"
+        #   location: "{{ your_location }}"
+        #   site_rack: "{{ your_site_rack }}"
+        #   os: "{{ your_os }}"
+        #   hardware: "{{ your_hardware }}"
+        interfaces:
+          - type: "1"
+            main: "1"
+            useip: 0
+            # ip: 10.xx.xx.xx
+            dns: "zabbix-agent"
+            port: "10050"

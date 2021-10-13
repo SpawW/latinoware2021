@@ -1,0 +1,90 @@
+version: "3.1"
+
+networks:
+  network-zabbix:
+    driver: bridge
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    command:
+      - mysqld
+      - --character-set-server=utf8
+      - --collation-server=utf8_bin
+      - --default-authentication-plugin=mysql_native_password
+    networks:
+      - network-zabbix
+    ports:
+      - "3306:3306"
+    volumes:
+      - "./zabbix/mysql:/var/lib/data"
+      - "./data/mysql:/var/lib/mysql"
+    env_file:
+      - .env
+
+  zabbix-server:
+    container_name: zabbix-server
+    image: zabbix/zabbix-server-mysql:ubuntu-5.4-latest
+    networks:
+      - network-zabbix
+    links:
+      - mysql
+    restart: always
+    ports:
+      - "10051:10051"
+    volumes:
+      - "./zabbix/alertscripts:/usr/lib/zabbix/alertscripts"
+    env_file:
+      - .env
+    depends_on:
+      - mysql
+
+  zabbix-frontend:
+    container_name: zabbix-frontend
+    image: zabbix/zabbix-web-apache-mysql:ubuntu-5.4-latest
+    networks:
+      - network-zabbix
+    links:
+      - mysql
+    restart: always
+    ports:
+      - "80:8080"
+      - "443:8443"
+    env_file:
+      - .env
+    environment:
+      - PHP_TZ=America/Sao_Paulo
+    depends_on:
+      - mysql
+
+  zabbix-agent:
+    container_name: zabbix-agent
+    image: zabbix/zabbix-agent2:alpine-5.4-latest
+    user: root
+    networks:
+      - network-zabbix
+    links:
+      - zabbix-server
+    restart: always
+    privileged: true
+    volumes:
+      - /var/run:/var/run
+    ports:
+      - "10054:10050"
+    environment:
+      - ZBX_HOSTNAME=Zabbix server
+      - ZBX_SERVER_HOST=zabbix-server
+
+  nodejs-app:
+    container_name: nodejs-sample
+    build:
+      context: nodejs/src
+    ports:
+      - 8080:8080
+    expose:
+      - 8080
+    networks:
+      - network-zabbix
+    volumes:
+      - "./nodejs/src/index.js:/app/index.js"
