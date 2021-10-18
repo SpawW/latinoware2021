@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#docker-composer up -d 
+#docker-compose up -d 
 
 docker-compose up -d mysql 
 docker-compose up -d zabbix-server

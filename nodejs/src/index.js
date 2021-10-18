@@ -71,6 +71,7 @@ const roomsHandler = async (req, res) => {
       { "{#ROOMID}": 20, "{#ROOMNAME}": "LibreCode" },
       { "{#ROOMID}": 21, "{#ROOMNAME}": "LibreSign" },
       { "{#ROOMID}": 22, "{#ROOMNAME}": "Rocket.Chat" },
+      // { "{#ROOMID}": 23, "{#ROOMNAME}": "Adail" },
     ]})
   );
 };
